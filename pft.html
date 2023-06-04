@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Personal Finance Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      align-items: center;
+      
+     
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    #balance {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 200px;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .income {
+      color: green;
+    }
+
+    .expense {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personal Finance Tracker</h1>
+
+  <div id="balance">Current Balance: $0.00</div>
+
+  <h2>Add Transaction</h2>
+  <form id="transaction-form">
+    <label for="type">Type:</label>
+    <select id="type">
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+
+    <label for="description">Description:</label>
+    <input type="text" id="description">
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount">
+
+    <button type="submit">Add Transaction</button>
+  </form>
+
+  <h2>Transactions</h2>
+  <table id="transaction-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Transaction rows will be dynamically added here -->
+    </tbody>
+  </table>
+
+  <script>
+    const transactionForm = document.getElementById('transaction-form');
+    const transactionTableBody = document.querySelector('#transaction-table tbody');
+    const balanceDisplay = document.getElementById('balance');
+    let transactions = [];
+
+    transactionForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const type = document.getElementById('type').value;
+      const description = document.getElementById('description').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (description === '' || isNaN(amount)) {
+        alert('Please enter valid values for description and amount.');
+        return;
+      }
+
+      const transaction = {
+        type,
+        description,
+        amount
+      };
+
+      transactions.push(transaction);
+      renderTransaction(transaction);
+      updateBalance();
+      resetForm();
+    });
+
+    function renderTransaction(transaction) {
+      const row = document.createElement('tr');
+      const typeCell = document.createElement('td');
+      const descriptionCell = document.createElement('td');
+      const amountCell = document.createElement('td');
+      const actionCell = document.createElement('td');
+      const deleteButton = document.createElement('button');
+
+      typeCell.textContent = transaction.type;
+      descriptionCell.textContent = transaction.description;
+      amountCell.textContent = transaction.amount.toFixed(2);
+
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', function() {
+        deleteTransaction(transaction);
+      });
+
+      actionCell.appendChild(deleteButton);
+
+      row.appendChild(typeCell);
+      row.appendChild(descriptionCell);
+      row.appendChild(amountCell);
+      row.appendChild(actionCell);
+
+      transactionTableBody.appendChild(row);
+    }
+
+    function deleteTransaction(transaction) {
+      const index = transactions.indexOf(transaction);
+      if (index > -1) {
+        transactions.splice(index, 1);
+        updateBalance();
+        refreshTransactions();
+      }
+    }
+
+    function updateBalance() {
+      const total = transactions.reduce(function(acc, curr) {
+        return acc + (curr.type === 'income' ? curr.amount : -curr.amount);
+      }, 0);
+      balanceDisplay.textContent = `Current Balance: $${total.toFixed(2)}`;
+    }
+
+    function refreshTransactions() {
+      transactionTableBody.innerHTML = '';
+      transactions.forEach(function(transaction) {
+        renderTransaction(transaction);
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('type').value = 'income';
+      document.getElementById('description').value = '';
+      document.getElementById('amount').value = '';
+    }
+  </script>
+</body>
+</html>
